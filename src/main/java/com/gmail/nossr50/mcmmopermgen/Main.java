@@ -2,9 +2,10 @@ package com.gmail.nossr50.mcmmopermgen;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
-
+import java.util.TreeMap;
 import org.yaml.snakeyaml.Yaml;
 
 public class Main {
@@ -45,9 +46,72 @@ public class Main {
 		Yaml pluginData = new Yaml();
 		Map<?, ?> map = (Map<?, ?>) pluginData.load(pluginYaml);
 
+		TreeMap<String, Map<?, ?>> parentTemp = new TreeMap<String, Map<?, ?>>();
+		TreeMap<String, Permission> permissions = new TreeMap<String, Permission>();
+
 		for(Object entrySet : map.entrySet()) {
 			Entry<?, ?> entry = (Entry<?, ?>) entrySet;
-			System.out.println(entry.getKey() + "=" + entry.getValue());
+			if(entry.getKey().equals("permissions")) {
+				Map<?, ?> permissionsMap = (Map<?, ?>) entry.getValue();
+
+				NODE: for(Object permissionsEntrySet : permissionsMap.entrySet()) {
+					Entry<?, ?> permissionsEntry = (Entry<?, ?>) permissionsEntrySet;
+
+					String node = (String) permissionsEntry.getKey();
+					String wiki = "";
+
+					for(Object permissionEntrySet : ((Map<?, ?>) permissionsEntry.getValue()).entrySet()) {
+						Entry<?, ?> permissionEntry = (Entry<?, ?>) permissionEntrySet;
+						if(permissionEntry.getKey().equals("noparse") && ((Boolean) permissionEntry.getValue() == true)) {
+							continue NODE;
+						}
+
+						if(permissionEntry.getKey().equals("children")) {
+							parentTemp.put(node, (Map<?, ?>) permissionsEntry.getValue());
+							continue NODE;
+						}
+
+						if(permissionEntry.getKey().equals("wiki")) {
+							wiki = (String) permissionEntry.getValue();
+						}
+					}
+
+					Permission permission = new Permission(node, wiki);
+					permissions.put(node, permission);
+					System.out.println(permission.toString());
+				}
+			}
+		}
+
+		// Now go through and load parent nodes
+		for(String key : parentTemp.keySet()) {
+			String wiki = "";
+			HashSet<Permission> children = new HashSet<Permission>();
+
+			for(Object permissionEntrySet : parentTemp.get(key).entrySet()) {
+				Entry<?, ?> permissionEntry = (Entry<?, ?>) permissionEntrySet;
+				if(permissionEntry.getKey().equals("noparse") && ((Boolean) permissionEntry.getValue() == true)) {
+					continue;
+				}
+
+				if(permissionEntry.getKey().equals("children")) {
+					for(Entry<?, ?> childrenEntrySet : ((Map<?, ?>) permissionEntry.getValue()).entrySet()) {
+						System.out.println(childrenEntrySet.getKey());
+						children.add(permissions.get(childrenEntrySet.getKey()));
+						System.out.println(children);
+					}
+					continue;
+				}
+
+				if(permissionEntry.getKey().equals("wiki")) {
+					wiki = (String) permissionEntry.getValue();
+				}
+			}
+
+			System.out.println(children);
+			Permission permission = new Permission(key, wiki, children);
+			permissions.put(key, permission);
+			System.out.println(permission.toString());
 		}
 	}
 
