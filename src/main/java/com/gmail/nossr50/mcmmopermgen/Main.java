@@ -1,12 +1,16 @@
 package com.gmail.nossr50.mcmmopermgen;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.TreeSet;
+
 import org.yaml.snakeyaml.Yaml;
 
 public class Main {
@@ -121,6 +125,48 @@ public class Main {
 			}
 			passes++;
 		}
+
+		// Now setup to generate the page
+		TreeSet<Permission> childPermissions = new TreeSet<Permission>();
+		TreeSet<Permission> parentPermissions = new TreeSet<Permission>();
+
+		String childListTemplateKey = "";
+		String parentListTemplateKey = "";
+		String childNodesTemplateKey = "";
+
+		for(String key : permissions.keySet()) {
+			Permission permission = permissions.get(key);
+			if(permission.isParent()) {
+				parentPermissions.add(permission);
+				parentListTemplateKey += key + "\n";
+			} else {
+				childPermissions.add(permission);
+				childListTemplateKey += key + "\n";
+				String childNodeTemplateTemp = childTemplate;
+				childNodeTemplateTemp = childNodeTemplateTemp.replace("__NODE__", key);
+				childNodeTemplateTemp = childNodeTemplateTemp.replace("__WIKI_INFO__", permission.getWiki());
+				childNodesTemplateKey += childNodeTemplateTemp + "\n";
+			}
+		}
+
+		String output = mainTemplate;
+
+		output = output.replace("__CHILD_LIST__", childListTemplateKey);
+		output = output.replace("__PARENT_LIST__", parentListTemplateKey);
+		output = output.replace("__CHILD_NODES__", childNodesTemplateKey);
+
+		try {
+			writeStringToFile(output, "output.md");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void writeStringToFile(String output, String fileName) throws FileNotFoundException {
+		PrintWriter out = new PrintWriter(fileName);
+		out.print(output);
+		out.flush();
+		out.close();
 	}
 
 	private static String readFileAsString(String fileName) throws IOException {
