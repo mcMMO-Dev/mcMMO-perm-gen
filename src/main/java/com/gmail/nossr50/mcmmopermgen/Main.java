@@ -13,6 +13,8 @@ import java.util.TreeSet;
 
 import org.yaml.snakeyaml.Yaml;
 
+import com.gmail.nossr50.mcmmopermgen.Permission.Inheritance;
+
 public class Main {
 	public static void main(String[] args) {
 		if(args.length != 5) {
@@ -64,6 +66,7 @@ public class Main {
 
 					String node = (String) permissionsEntry.getKey();
 					String wiki = "";
+					Inheritance inheritance = Inheritance.FALSE;
 
 					for(Object permissionEntrySet : ((Map<?, ?>) permissionsEntry.getValue()).entrySet()) {
 						Entry<?, ?> permissionEntry = (Entry<?, ?>) permissionEntrySet;
@@ -79,9 +82,21 @@ public class Main {
 						if(permissionEntry.getKey().equals("wiki")) {
 							wiki = (String) permissionEntry.getValue();
 						}
+
+						if(permissionEntry.getKey().equals("default")) {
+							if(permissionEntry.getValue() instanceof Boolean) {
+								if((Boolean) permissionEntry.getValue()) {
+									inheritance = Inheritance.TRUE;
+								} else {
+									inheritance = Inheritance.FALSE;
+								}
+							} else {
+								inheritance = Inheritance.fromYaml((String) permissionEntry.getValue());
+							}
+						}
 					}
 
-					Permission permission = new Permission(node, wiki);
+					Permission permission = new Permission(node, wiki, inheritance);
 					permissions.put(node, permission);
 					System.out.println(permission.toString());
 				}
@@ -95,6 +110,7 @@ public class Main {
 			NODE: while(iterator.hasNext()) {
 				String key = iterator.next();
 				String wiki = "";
+				Inheritance inheritance = Inheritance.FALSE;
 				HashSet<Permission> children = new HashSet<Permission>();
 
 				for(Object permissionEntrySet : parentTemp.get(key).entrySet()) {
@@ -116,9 +132,21 @@ public class Main {
 					if(permissionEntry.getKey().equals("wiki")) {
 						wiki = (String) permissionEntry.getValue();
 					}
+
+					if(permissionEntry.getKey().equals("default")) {
+						if(permissionEntry.getValue() instanceof Boolean) {
+							if((Boolean) permissionEntry.getValue()) {
+								inheritance = Inheritance.TRUE;
+							} else {
+								inheritance = Inheritance.FALSE;
+							}
+						} else {
+							inheritance = Inheritance.fromYaml((String) permissionEntry.getValue());
+						}
+					}
 				}
 
-				Permission permission = new Permission(key, wiki, children);
+				Permission permission = new Permission(key, wiki, inheritance, children);
 				permissions.put(key, permission);
 				iterator.remove();
 				System.out.println(permission.toString());
@@ -143,11 +171,13 @@ public class Main {
 				String parentNodeTemplateTemp = parentTamplate;
 				parentNodeTemplateTemp = parentNodeTemplateTemp.replace("__NODE__", key);
 				parentNodeTemplateTemp = parentNodeTemplateTemp.replace("__WIKI_INFO__", permission.getWiki());
+				parentNodeTemplateTemp = parentNodeTemplateTemp.replace("__DEFAULT_INHERITANCE__", permission.getInheritance().toString());
 				String childNodesFormattedTemplateKey = "";
 				for(Permission child : permission.getChildren()) {
 					String childNodeFormattedTemplateTemp = childListFormattedTemplate;
 					childNodeFormattedTemplateTemp = childNodeFormattedTemplateTemp.replace("__NODE__", child.getNode());
 					childNodeFormattedTemplateTemp = childNodeFormattedTemplateTemp.replace("__WIKI_INFO__", child.getWiki());
+					childNodeFormattedTemplateTemp = childNodeFormattedTemplateTemp.replace("__DEFAULT_INHERITANCE__", child.getInheritance().toString());
 					childNodesFormattedTemplateKey += childNodeFormattedTemplateTemp + "\n";
 				}
 				parentNodeTemplateTemp = parentNodeTemplateTemp.replace("__CHILD_LIST_FORMATTED__", childNodesFormattedTemplateKey);
@@ -158,6 +188,7 @@ public class Main {
 				String childNodeTemplateTemp = childTemplate;
 				childNodeTemplateTemp = childNodeTemplateTemp.replace("__NODE__", key);
 				childNodeTemplateTemp = childNodeTemplateTemp.replace("__WIKI_INFO__", permission.getWiki());
+				childNodeTemplateTemp = childNodeTemplateTemp.replace("__DEFAULT_INHERITANCE__", permission.getInheritance().toString());
 				childNodesTemplateKey += childNodeTemplateTemp + "\n";
 			}
 		}
