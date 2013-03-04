@@ -20,25 +20,25 @@ public class Main {
 		String mainTemplatePath = args[1];
 		String childTemplatePath = args[2];
 		String parentTemplatePath = args[3];
-		String childListTemplatePath = args[4];
+		String childListFormattedTemplatePath = args[4];
 
 		String pluginYaml = null;
 		String mainTemplate = null;
 		String childTemplate = null;
 		String parentTamplate = null;
-		String childListTemplate = null;
+		String childListFormattedTemplate = null;
 
 		try {
 			pluginYaml = readFileAsString(pluginYamlPath);
 			mainTemplate = readFileAsString(mainTemplatePath);
 			childTemplate = readFileAsString(childTemplatePath);
 			parentTamplate = readFileAsString(parentTemplatePath);
-			childListTemplate = readFileAsString(childListTemplatePath);
+			childListFormattedTemplate = readFileAsString(childListFormattedTemplatePath);
 		} catch(IOException e) {
 			e.printStackTrace();
 			return;
 		} finally {
-			if(pluginYaml == null || mainTemplate == null || childTemplate == null || parentTamplate == null || childListTemplate == null) {
+			if(pluginYaml == null || mainTemplate == null || childTemplate == null || parentTamplate == null || childListFormattedTemplate == null) {
 				System.out.println("Could not read all files");
 				return;
 			}
