@@ -1,0 +1,35 @@
+This list covers every permission explicitly or implicitly used by mcMMO. Within, you will find detailed explanations of each permissions' effects, as well as a list of permissions with children, and what those children are. Each list is in fully alphabetical order, which should allow for easy perusal.
+
+## A Note on PermissionsEx
+While mcMMO will work with PermissionsEx, we would like to note that we do not support its use. More specifically, we do not support the use of any permissions with an asterisk (the * character) in them. This is due to how PermissionsEx treats such permissions. If you use that character, it has the alarming tendency to treat any child permission as automatically inherited by that parent, regardless of whether or not you have subsequently denied that child permission. Note that while we have explicitly defined permissions with * characters in them, these permissions all inherit a related permission that replaces the asterisk with the word all. If you are using PermissionsEx, we highly recommend that if you must use such a permission, you use the ones that end in .all rather than the ones that end with an asterisk. This will not trigger the same effect, and will thus allow you to properly deny any child permissions you do not want players to have access to.
+
+## Base Permissions
+These permission nodes are used to determine whether or not a player has access to specific features of mcMMO. While some of these permissions may have children, they are all explicitly checked by some part of the plugin. Parent permissions will be covered by another section.
+
+<table>
+  <tr>
+    <th>Permission Node</th>
+    <th>Default</th>
+    <th>Effect</th>
+  </tr>
+  __CHILD_NODES__
+</table>
+
+## Parent Permissions
+There are a lot of permissions in mcMMO that are never directly checked. These permissions are mostly intended as containers for the ones that are checked, so that permissions can be enabled and disabled with far more ease. Below is an alphabetical list of every permission in the project that has children, detailing what the children are, who gets it by default, and what it does. Some of these permissions have been deprecated, while others are directly checked. Those that are directly checked are in the list above as well. If you are using PermissionsEx and intend on using any of the defined permissions that have an asterisk (the * character), please scroll up to our note on PermissionsEx for information regarding why your permissions may not be working correctly. 
+
+<table>
+  <tr>
+    <th>Permission Node</th>
+    <th>Default</th>
+    <th>Information</th>
+  </tr>
+  __PARENT_NODES__
+</table>
+
+## Easy Permissions List
+This is a full list of mcMMO permissions. It is not formatted, allowing for easy access to set up detailed permissions lists for a YAML-based permissions plugin. Each and every explicitly checked mcMMO permission is listed below, in alphabetical order.
+
+```
+__CHILD_LIST__
+```
