@@ -133,12 +133,25 @@ public class Main {
 		String childListTemplateKey = "";
 		String parentListTemplateKey = "";
 		String childNodesTemplateKey = "";
+		String parentNodesTemplateKey = "";
 
 		for(String key : permissions.keySet()) {
 			Permission permission = permissions.get(key);
 			if(permission.isParent()) {
 				parentPermissions.add(permission);
 				parentListTemplateKey += key + "\n";
+				String parentNodeTemplateTemp = parentTamplate;
+				parentNodeTemplateTemp = parentNodeTemplateTemp.replace("__NODE__", key);
+				parentNodeTemplateTemp = parentNodeTemplateTemp.replace("__WIKI_INFO__", permission.getWiki());
+				String childNodesFormattedTemplateKey = "";
+				for(Permission child : permission.getChildren()) {
+					String childNodeFormattedTemplateTemp = childListFormattedTemplate;
+					childNodeFormattedTemplateTemp = childNodeFormattedTemplateTemp.replace("__NODE__", child.getNode());
+					childNodeFormattedTemplateTemp = childNodeFormattedTemplateTemp.replace("__WIKI_INFO__", child.getWiki());
+					childNodesFormattedTemplateKey += childNodeFormattedTemplateTemp + "\n";
+				}
+				parentNodeTemplateTemp = parentNodeTemplateTemp.replace("__CHILD_LIST_FORMATTED__", childNodesFormattedTemplateKey);
+				parentNodesTemplateKey += parentNodeTemplateTemp + "\n";
 			} else {
 				childPermissions.add(permission);
 				childListTemplateKey += key + "\n";
@@ -154,6 +167,7 @@ public class Main {
 		output = output.replace("__CHILD_LIST__", childListTemplateKey);
 		output = output.replace("__PARENT_LIST__", parentListTemplateKey);
 		output = output.replace("__CHILD_NODES__", childNodesTemplateKey);
+		output = output.replace("__PARENT_NODES__", parentNodesTemplateKey);
 
 		try {
 			writeStringToFile(output, "output.md");
