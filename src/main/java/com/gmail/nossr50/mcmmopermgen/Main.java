@@ -3,6 +3,7 @@ package com.gmail.nossr50.mcmmopermgen;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -84,34 +85,41 @@ public class Main {
 		}
 
 		// Now go through and load parent nodes
-		for(String key : parentTemp.keySet()) {
-			String wiki = "";
-			HashSet<Permission> children = new HashSet<Permission>();
+		int passes = 0;
+		while(!parentTemp.isEmpty() && passes < 5) {
+			Iterator<String> iterator = parentTemp.keySet().iterator();
+			NODE: while(iterator.hasNext()) {
+				String key = iterator.next();
+				String wiki = "";
+				HashSet<Permission> children = new HashSet<Permission>();
 
-			for(Object permissionEntrySet : parentTemp.get(key).entrySet()) {
-				Entry<?, ?> permissionEntry = (Entry<?, ?>) permissionEntrySet;
-				if(permissionEntry.getKey().equals("noparse") && ((Boolean) permissionEntry.getValue() == true)) {
-					continue;
-				}
-
-				if(permissionEntry.getKey().equals("children")) {
-					for(Entry<?, ?> childrenEntrySet : ((Map<?, ?>) permissionEntry.getValue()).entrySet()) {
-						System.out.println(childrenEntrySet.getKey());
-						children.add(permissions.get(childrenEntrySet.getKey()));
-						System.out.println(children);
+				for(Object permissionEntrySet : parentTemp.get(key).entrySet()) {
+					Entry<?, ?> permissionEntry = (Entry<?, ?>) permissionEntrySet;
+					if(permissionEntry.getKey().equals("noparse") && ((Boolean) permissionEntry.getValue() == true)) {
+						continue;
 					}
-					continue;
+
+					if(permissionEntry.getKey().equals("children")) {
+						for(Entry<?, ?> childrenEntrySet : ((Map<?, ?>) permissionEntry.getValue()).entrySet()) {
+							if(permissions.get(childrenEntrySet.getKey()) ==  null) {
+								continue NODE;
+							}
+							children.add(permissions.get(childrenEntrySet.getKey()));
+						}
+						continue;
+					}
+
+					if(permissionEntry.getKey().equals("wiki")) {
+						wiki = (String) permissionEntry.getValue();
+					}
 				}
 
-				if(permissionEntry.getKey().equals("wiki")) {
-					wiki = (String) permissionEntry.getValue();
-				}
+				Permission permission = new Permission(key, wiki, children);
+				permissions.put(key, permission);
+				iterator.remove();
+				System.out.println(permission.toString());
 			}
-
-			System.out.println(children);
-			Permission permission = new Permission(key, wiki, children);
-			permissions.put(key, permission);
-			System.out.println(permission.toString());
+			passes++;
 		}
 	}
 
