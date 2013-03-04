@@ -17,16 +17,18 @@ Any valid plugin.yml will work with this tool, however to any permission node yo
 
 ## Template
 
-Inside the main template, \_\_CHILD\_NODES\_\_ will include the Child Template for each child node found in the plugin.yml, \_\_PARENT\_NODES\_\_ will include the Parent Template for each parent node found in the plugin.yml
+Inside the main template, \_\_CHILD\_NODES\_\_ will include the Child Template for each child node found in the plugin.yml, \_\_PARENT\_NODES\_\_ will include the Parent Template for each parent node found in the plugin.yml, \_\_CHILD\_LIST\_\_ will list all child nodes in the root separated by newline, \_\_PARENT\_LIST\_\_ will list all parent nodes in the root separated by newline.
 
 Inside the Child and Child List Templates, the node will be formatted with the provided information from the plugin.yml
 
-Inside the Parent Template, the node will be formatted with the provided information from the plugin.yml, additionally \_\_CHILD\_LIST\_\_ will include the Child List Template for that parent node.
+Inside the Parent Template, the node will be formatted with the provided information from the plugin.yml, additionally \_\_CHILD\_LIST\_FORMATTED\_\_ will include the Child List Template for that parent node.
 
 ### Main Template Keys
 
 * \_\_CHILD\_NODES\_\_
 * \_\_PARENT\_NODES\_\_
+* \_\_CHILD\_LIST\_\_
+* \_\_PARENT\_LIST\_\_
 
 ### Child Template Keys
 
@@ -39,7 +41,7 @@ Inside the Parent Template, the node will be formatted with the provided informa
 * \_\_NODE\_\_
 * \_\_DEFAULT\_INHERITANCE\_\_
 * \_\_WIKI\_INFO\_\_
-* \_\_CHILD\_LIST\_\_
+* \_\_CHILD\_LIST\_FORMATTED\_\_
 
 ### Child List Template Keys
 
