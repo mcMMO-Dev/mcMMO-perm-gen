@@ -66,7 +66,7 @@ public class Main {
 
 					String node = (String) permissionsEntry.getKey();
 					String wiki = "";
-					Inheritance inheritance = Inheritance.FALSE;
+					Inheritance inheritance = Inheritance.UNSET;
 
 					for(Object permissionEntrySet : ((Map<?, ?>) permissionsEntry.getValue()).entrySet()) {
 						Entry<?, ?> permissionEntry = (Entry<?, ?>) permissionEntrySet;
@@ -85,7 +85,7 @@ public class Main {
 
 						if(permissionEntry.getKey().equals("default")) {
 							if(permissionEntry.getValue() instanceof Boolean) {
-								if((Boolean) permissionEntry.getValue()) {
+								if((Boolean) permissionEntry.getValue() == true) {
 									inheritance = Inheritance.TRUE;
 								} else {
 									inheritance = Inheritance.FALSE;
@@ -98,7 +98,6 @@ public class Main {
 
 					Permission permission = new Permission(node, wiki, inheritance);
 					permissions.put(node, permission);
-					System.out.println(permission.toString());
 				}
 			}
 		}
@@ -110,7 +109,7 @@ public class Main {
 			NODE: while(iterator.hasNext()) {
 				String key = iterator.next();
 				String wiki = "";
-				Inheritance inheritance = Inheritance.FALSE;
+				Inheritance inheritance = Inheritance.UNSET;
 				HashSet<Permission> children = new HashSet<Permission>();
 
 				for(Object permissionEntrySet : parentTemp.get(key).entrySet()) {
@@ -149,7 +148,6 @@ public class Main {
 				Permission permission = new Permission(key, wiki, inheritance, children);
 				permissions.put(key, permission);
 				iterator.remove();
-				System.out.println(permission.toString());
 			}
 			passes++;
 		}

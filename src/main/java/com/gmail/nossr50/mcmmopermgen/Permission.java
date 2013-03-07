@@ -23,6 +23,10 @@ public class Permission implements Comparable<Permission> {
 		this.inheritance = inheritance;
 		this.parent = true;
 		this.children = new TreeSet<Permission>(children);
+		// We need to set the inheritance of all children if they are unset to this one's if we are set
+		if(inheritance != Inheritance.UNSET) {
+			recursiveInheritanceSet(this);
+		}
 	}
 
 	public String getNode() {
@@ -45,6 +49,20 @@ public class Permission implements Comparable<Permission> {
 		return children;
 	}
 
+	private void recursiveInheritanceSet(Permission parent) {
+		System.out.println("Recursive set for " + parent.node + " to " + parent.inheritance);
+		for(Permission child : parent.children) {
+			if(Inheritance.greaterThan(parent.inheritance, child.inheritance)) {
+				child.inheritance = parent.inheritance;
+			}
+			if(child.isParent()) {
+				recursiveInheritanceSet(child);
+			} else {
+				System.out.println("Set child " + child.node + " to " + parent.inheritance);
+			}
+		}
+	}
+
 	@Override
 	public String toString() {
 		String value = "[node=" + node + ", wiki=" + wiki + ", parent=" + parent;
@@ -65,7 +83,13 @@ public class Permission implements Comparable<Permission> {
 	}
 
 	public enum Inheritance {
-		TRUE, FALSE, OP, NOT_OP;
+		TRUE(4), FALSE(1), OP(3), NOT_OP(2), UNSET(0);
+
+		private int weight;
+
+		private Inheritance(int weight) {
+			this.weight = weight;
+		}
 
 		@Override
 		public String toString() {
@@ -78,20 +102,28 @@ public class Permission implements Comparable<Permission> {
 					return "Op";
 				case NOT_OP:
 					return "Not Op";
+				case UNSET:
+					return "False";
 				default:
 					return "Unknown";
 			}
 		}
 
+		public static boolean greaterThan(Inheritance parent, Inheritance child) {
+			return parent.weight > child.weight;
+		}
+
 		public static Inheritance fromYaml(String input) {
 			if(input.equalsIgnoreCase("true")) {
 				return TRUE;
+			} else if(input.equalsIgnoreCase("false")){
+				return FALSE;
 			} else if(input.equalsIgnoreCase("op")) {
 				return OP;
 			} else if(input.equalsIgnoreCase("not op")) {
 				return NOT_OP;
 			} else {
-				return FALSE;
+				return UNSET;
 			}
 		}
 	}
